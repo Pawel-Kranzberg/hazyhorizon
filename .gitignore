@@ -13,8 +13,8 @@ venv/
 env/
 ENV/
 
-# pixi environments
-.pixi
+# uv environments
+.venv/
 
 # IDE and editor files
 .vscode/
