@@ -11,16 +11,16 @@ The current state remains a work in progress, with ongoing developments anticipa
 
 ## 🚀 Installation
 
-### From PyPI (Recommended)
-
-```bash
-pip install hazyhorizon
-```
-
-### Using uv
+### Using uv (recommended)
 
 ```bash
 uv add hazyhorizon
+```
+
+### From PyPI
+
+```bash
+pip install hazyhorizon
 ```
 
 ### From Source
