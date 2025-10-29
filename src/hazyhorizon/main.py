@@ -323,10 +323,10 @@ def two_way_averages(
 
 def clip_outliers(
     x: pd.Series,
-    q: float = 99.9,
+    q: float = 95.0,
     n: int = 2,
     n_averaging: int = 2,
-    outlier_threshold: float = 0.05,
+    outlier_threshold: float = 0.1,
     ddof: int = 1,
     average: str = "mean",
     n_left: int | None = None,
@@ -350,13 +350,13 @@ def clip_outliers(
     x : pandas.Series
         Input time series data.
     q : float, optional
-        Quantile threshold (in percent) for determining extreme deviations. Default is 99.9.
+        Quantile threshold (in percent) for determining extreme deviations. Default is 95.0.
     n : int, optional
         Window size for computing variation coefficients. Default is 2.
     n_averaging : int, optional
         Window size for computing the two-way rolling average. Default is 2.
     outlier_threshold : float, optional
-        Threshold for the variation coefficient above which a point is considered an outlier. Default is 0.05.
+        Threshold for the variation coefficient above which a point is considered an outlier. Default is 0.1.
     ddof : int, optional
         Delta degrees of freedom for standard deviation in variation coefficient. Default is 1.
     average : str, optional
@@ -381,7 +381,7 @@ def clip_outliers(
     Returns
     -------
     pandas.Series or numpy.ndarray
-        The input series with outliers smoothed or adjusted. Output type matches `return_array`.
+        The input series with outliers smoothed (adjusted). Output type depends on `return_array`.
 
     Notes
     -----
@@ -393,16 +393,16 @@ def clip_outliers(
     --------
     >>> import pandas as pd
     >>> s = pd.Series([1, 2, 100, 4, 5], index=pd.date_range("2023-01-01", periods=5))
-    >>> remove_outliers(s)
+    >>> clip_outliers(s, q=75, outlier_threshold=1)
     2023-01-01     1.0
     2023-01-02     2.0
-    2023-01-03    4.95
+    2023-01-03     3.0
     2023-01-04     4.0
     2023-01-05     5.0
     dtype: float64
     """
-    # TODO: Let me know if you'd like to generate a version that works with NumPy arrays
-    # # directly or supports plotting the outlier detection process!
+    # TODO: TBD if to prepare a version that works with NumPy arrays
+    # directly or supports plotting the outlier detection process.
 
     x_copy = x.copy()
     x_copy_interpolated = x.interpolate(method="time", limit_area="inside")
@@ -422,6 +422,14 @@ def clip_outliers(
     # f = indicators >= outlier_threshold
     # x_copy[f] = np.nan
     x_copy[indicators >= outlier_threshold] = np.nan
+    if x_copy.notna().sum() == 0:
+        warnings.warn("The outlier_threshold might be too low for this series. Fall-back attempted.")
+        # Fall-back:
+        x_copy = x.copy()
+        max_indicator = indicators.max()
+        outliers_f = indicators == max_indicator
+        warnings.warn(f"Setting the outlier_threshold to the max value of {max_indicator}, identifying {outliers_f.sum()} outlier(s).")
+        x_copy[outliers_f] = np.nan
 
     # TODO: Add the time method fallback for when output is ndarray:
     x_copy = x_copy.interpolate(method="time", limit_direction="both")
@@ -448,7 +456,7 @@ def clip_outliers(
     quantile = np.percentile(a=pd.Series(absolute_differences).dropna(), q=q)
     # print(quantile)
 
-    output = x.copy()
+    output = x.copy().astype(float)
     # output = pd.Series(output)
     f0 = absolute_differences >= quantile
     f1 = f0 & (differences > 0)
