@@ -15,6 +15,7 @@
 
 import numpy as np
 import pandas as pd
+import warnings
 
 
 def rolling_variation_coefficients(

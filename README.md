@@ -47,7 +47,7 @@ pip install -e .
 ## 📖 Usage
 
 ```python
-import hazyhorizon
+import hazyhorizon as hh
 
 # More documentation coming soon...
 ```
