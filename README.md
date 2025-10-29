@@ -34,8 +34,8 @@ pip install -e .
 ## 📋 Requirements
 
 - Python >= 3.11
-- scipy >= 1.15.2
-- scikit-learn >= 1.6.1
+- scipy >= 1.11.4
+- scikit-learn >= 1.4.2
 
 ## 🎯 Features
 
